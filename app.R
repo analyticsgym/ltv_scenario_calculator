@@ -6,7 +6,7 @@ ui <- fluidPage(
   # Application title
   titlePanel("5 Year LTV Calculator"),
   p("Example LTV scenario calculator for annual subscription business."),
-  p("TODO: add link to Github code."),
+  HTML("<p><a href='https://github.com/analyticsgym/ltv_scenario_calculator/blob/main/app.R'>Code on Github</a></p>"),
   # Explanatory text and formulas
   tags$div(
     HTML("
@@ -31,7 +31,8 @@ ui <- fluidPage(
         <li>weights avg user gross profit by the proportion of the initial segment that reaches period X (acts similar to a weighted average in practice)</li>
         <li>average user gross profit period X * proportion of initial segment to reach period X</li>
       </ul>
-    ")
+    "),
+    p("Scenario math below assumes year 1 renewal rate is net of refunders (year 1 renewers / year 1 users who didn't refund)"),
   ),
   # Compact input styling
   tags$head(
@@ -132,7 +133,8 @@ server <- function(input, output) {
       user_cogs_pct_net_sales = rep(user_cogs_pct_net_sales, 5),
       sub_year_aov = y1_to_y5_aovs,
       sub_year_refund_rate = c(y1_refund_rate, rep(0, 4)),
-      sub_year_renewal_rate = c(y1_to_y4_renewal_rate, NA)
+      # assume year 1 renewal rate is net of refunds so we need to adjust for that
+      sub_year_renewal_rate = c(y1_to_y4_renewal_rate, NA) * (1 - sub_year_refund_rate)
     )
     
     setup %>%
